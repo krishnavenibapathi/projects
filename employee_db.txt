@@ -1,0 +1,78 @@
+AIM:Employee Management system
+
+DESCRIPTION:
+This project is a simplified Employee Management System designed for managing employee data, departments, and salary information. The system provides essential features to handle employee records efficiently, including assigning employees to departments, managing managerial hierarchies, and tracking salary history.
+
+COMMANDS:
+use student_db;
+
+create table employees(emp_id int primary key,f_name varchar(10) not null,l_name varchar(10) not null,gender enum('male','female','others') not null,dob date not null,doh date not null,position varchar(100) not null,department_id int,manager_id int,constraint emp_fk foreign key(department_id) references department(department_id),constraint emp_f foreign key(manager_id) references employees(emp_id));
+
+create table department(department_id int primary key,department_name varchar(30) not null);
+
+create table salary(emp_id int,salary_amount decimal(10,2),effective_date date not null,foreign key(emp_id) references employees(emp_id),primary key(emp_id,effective_date));
+
+insert into employees values(1,'john','doe','male','1990-05-10','2022-01-15','software engineer',1,null),(2,'jane','smith','female','1985-09-23','2018-06-01','project manager',2,null),(3,'mike','johnson','male','1992-12-30','2021-03-10','hr',3,2),(4,'emily','davis','female','1995-04-12','2019-11-22','finance analyst',4,2),(5,'robert','brown','male','1988-07-05','2020-09-15','it technician',5,1);
+
+insert into department values(1,'it'),(2,'project manger'),(3,'hr'),(4,'finance'),(5,'operations');
+insert into salary(emp_id,salary_amount,effective_date) values(1,60000.00,'2022-01-15'),(2,80000.00,'2020-06-01'),(3,55000.00,'2021-03-10'),(4,70000.00,'2019-11-22'),(5,50000.00,'2020-09-15');
+
+select * from employees;
+
+select * from department;
+
+select * from salary;
+
+/*Get Employee Details Along with Their Department*/
+SELECT e.emp_id, e.f_name, e.l_name, e.position, d.department_name FROM employees e JOIN department d ON e.department_id = d.department_id;
+
+/*Get Employee Salaries Along with Their Department*/
+SELECT e.emp_id, e.f_name, e.l_name, s.salary_amount, d.department_name FROM employees e JOIN salary s ON e.emp_id = s.emp_id JOIN department d ON e.department_id = d.department_id;
+
+/* Find the Total Salary by Department*/
+select d.department_name,sum(salary_amount) from salary s join employees e on e.emp_id=s.emp_id join department d on d.department_id=e.department_id group by d.department_name;
+
+/* Average Salary per Department*/
+select d.department_name,avg(salary_amount) from salary s join employees e on e.emp_id=s.emp_id join department d on d.department_id=e._id group by d.department_name;
+
+/* Get the Details of the Highest-Paid Employee*/
+select *,s.salary_amount from employees e join salary s on e.emp_id=s.emp_id where salary_amount=(select max(salary_amount) from salary);
+
+/*List Employees Earning Above the Average Salary*/
+select e.emp_id,f_name,s.salary_amount from employees e join salary s on e.emp_id=s.emp_id where salary_amount>(select avg(salary_amount) from salary);
+
+/* Find Employees Without a Manager*/
+select emp_id,f_name from employees where manager_id is null;
+
+/*Find Employees Managed by a Specific Manager*/
+select emp_id,f_name from employees where manager_id=1;
+
+/*List Employees Along with Their Managers*/
+select e1.emp_id,e1.f_name,e2.f_name from employees e1  left join employees e2 on e1.manager_id=e2.emp_id;
+
+/*Filtering with WHERE and HAVING*/
+select * from employees where doh>'2020-01-01';
+
+/*Departments with More Than One Employee*/
+SELECT d.department_name, COUNT(e.emp_id) AS employee_count FROM employees e JOIN department d ON e.department_id = d.department_id GROUP BY d.department_name having count(e.emp_id)=1;
+
+/*Update Salary of Employees Based on Department*/
+update salary set salary_amount=1.10*salary_amount where emp_id in (select emp_id from employees where department_id=1);
+
+select *from salary;
+
+/* Remove Employees Who Left Before a Certain Date*/
+DELETE FROM salary
+WHERE emp_id IN (SELECT emp_id FROM employees WHERE doh < '2010-01-01');
+
+DELETE FROM employees
+WHERE doh < '2010-01-01';
+select * from employees;
+
+Result:
+For your project, you can create a report that involves querying different aspects of the employee database using the queries above. You could also:
+
+Analyze salary trends per department.
+Identify departments with the highest/lowest number of employees.
+Build performance-based metrics for employees, such as who earns above the average salary or who manages the most employees.
+This approach will give you experience with various SQL techniques such as JOINs, aggregations, subqueries, and modifying data.

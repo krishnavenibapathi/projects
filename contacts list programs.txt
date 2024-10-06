@@ -1,0 +1,102 @@
+Objective of the Program:
+
+The Contact Book Program is designed to manage a simple text-based contact list, allowing users to perform basic operations such as adding, searching, deleting, and displaying contacts. It utilizes a local file (contacts.txt) to store the contact information persistently.
+
+Key Features:
+Add Contact: Allows the user to add a new contact by specifying a name and phone number. The contact is saved to a file.
+Search Contact: Enables the user to search for a contact by name and display the corresponding phone number if found.
+Delete Contact: Facilitates deleting a contact from the list by name.
+Display All Contacts: Lists all the contacts stored in the contact book.
+Persist Data: Contacts are stored in a text file (contacts.txt), ensuring data is retained between program runs.
+Testing Loaded Contacts: An extra feature that prints out all loaded contacts from the file, useful for debugging.
+
+
+import os
+
+CONTACTS_FILE = "C:\\Users\\krishnavenibapathi\\OneDrive\\Documents\\contacts.txt"
+
+# Function to load contacts from the file
+def load_contacts():
+    contacts = []
+    if os.path.exists(CONTACTS_FILE):
+        with open(CONTACTS_FILE, "r") as file:
+            for line in file:
+                name, phone = line.strip().split(",")
+                contacts.append({"name": name, "phone": phone})
+    return contacts
+
+# Function to save contacts to the file
+def save_contacts(contacts):
+    with open(CONTACTS_FILE, "w") as file:
+        for contact in contacts:
+            file.write(f"{contact['name']},{contact['phone']}\n")
+
+# Function to add a new contact
+def add_contact(name, phone):
+    c = load_contacts()
+    c.append({"name": name, "phone": phone})
+    save_contacts(c)
+    print(f"Contact '{name}' added successfully.")
+
+# Function to search for a contact by name
+def search_contact(name):
+    contacts = load_contacts()
+    for contact in contacts:
+        if contact["name"].lower() == name.lower():
+            print(f"Found contact: {contact['name']} - {contact['phone']}")
+            return
+    print(f"No contact found with the name '{name}'.")
+
+# Function to delete a contact by name
+def delete_contact(name):
+    contacts = load_contacts()
+    contacts = [contact for contact in contacts if contact["name"].lower() != name.lower()]
+    save_contacts(contacts)
+    print(f"Contact '{name}' deleted successfully.")
+
+# Function to display all contacts
+def display_contacts():
+    contacts = load_contacts()
+    if contacts:
+        print("Contact List:")
+        for contact in contacts:
+            print(f"{contact['name']} - {contact['phone']}")
+    else:
+        print("No contacts found.")
+
+# Main menu for user interaction
+def main():
+    while True:
+        print("\n--- Contact Book ---")
+        print("1. Add Contact")
+        print("2. Search Contact")
+        print("3. Delete Contact")
+        print("4. Display All Contacts")
+        print("5. Print Loaded Contacts (for testing)")  # New option to print load_contacts
+        print("6. Exit")
+        choice = input("Choose an option (1-6): ")
+        
+        if choice == "1":
+            name = input("Enter contact name: ")
+            phone = input("Enter phone number: ")
+            add_contact(name, phone)
+        elif choice == "2":
+            name = input("Enter the name to search: ")
+            search_contact(name)
+        elif choice == "3":
+            name = input("Enter the name to delete: ")
+            delete_contact(name)
+        elif choice == "4":
+            display_contacts()
+        elif choice == "5":
+            # New functionality to print load_contacts
+            contacts = load_contacts()
+            print("Loaded Contacts:", contacts)  # Print loaded contacts for testing
+        elif choice == "6":
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
+
+if __name__ == "__main__":
+    main()
